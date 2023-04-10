@@ -1,6 +1,14 @@
-import deepl, srt
 from deep_translator import MyMemoryTranslator
 from os import system
+import srt
+
+class SRTProcessing():
+    def __init__(self, srt_file):
+        self.srt_file = srt_file
+
+    def translate(self, source_language, target_language):
+        # TODO: do processing (SRT)
+        pass
 
 class FileReader():
     def __init__(self, path):
@@ -10,11 +18,9 @@ class FileReader():
         if self.path.endswith(".srt"):
             print("srt")
             return {"type": "srt", "data": srt.parse(open(self.path, "r", encoding="utf-8").read())}
-            #return srt.parse(open(self.path, "r", encoding="utf-8").read())
         elif self.path.endswith(".json"):
             print("json")
             return {"type": "json", "data": open(self.path, "r", encoding="utf-8").read()}
-            #return self.path
         else:
             print("unknown")
             raise Exception("Unknown file type")
@@ -28,9 +34,13 @@ class SubtitleTranslation():
     def translate(self):
         file = FileReader(self.srt_file)
         data = file.read()
-        # for subtitle in self.srt_file:
-        #     subtitle.content = MyMemoryTranslator(source=self.source_language, target=self.target_language).translate(subtitle.content)
-        # return self.srt_file
+
+        if data["type"] == "json":
+            print("translate() json")
+            # TODO: do processing (JSON)
+        elif data["type"] == "srt":
+            print("translate() srt")
+            # TODO: do processing (SRT)
 
     def save(self, path):
         with open(path, "w", encoding="utf-8") as f:
