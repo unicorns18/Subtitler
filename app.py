@@ -1,8 +1,6 @@
-import subprocess, json, wavfile, os
+import subprocess, os
 
 pathtovideo = "E:\\S01E01.mkv"
-pathtoffmpeg = "C:\\ffmpeg-2023-04-06-git-b564ad8eac-full_build\\bin\\"
-pathtoffprobe = "C:\\ffmpeg-2023-04-06-git-b564ad8eac-full_build\\bin\\"
 
 class AudioExtraction():
     input_file = None
@@ -14,7 +12,7 @@ class AudioExtraction():
             self.audio_file_name = os.path.curdir + "/audio/" + os.path.basename(input_file).split(".")[0] + ".wav"
 
     def extractAudio(self):
-        command = pathtoffmpeg+"ffmpeg -hide_banner -loglevel warning -i {} -b:a 192k -ac 1 -ar 16000 -vn {}".format(self.input_file, self.audio_file_name)
+        command = "ffmpeg -hide_banner -loglevel warning -i {} -b:a 192k -ac 1 -ar 16000 -vn {}".format(self.input_file, self.audio_file_name)
 
         try:
             ret = subprocess.call(command, shell=True)

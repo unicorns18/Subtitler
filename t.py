@@ -1,6 +1,13 @@
 from deep_translator import MyMemoryTranslator
+from langdetect import detect, DetectorFactory
 from os import system
 import srt
+
+DetectorFactory.seed = 0
+
+class UnknownException(Exception):
+    def __init__(self, message):
+        self.message = message
 
 class SRTProcessing():
     def __init__(self, srt_file):
@@ -23,7 +30,7 @@ class FileReader():
             return {"type": "json", "data": open(self.path, "r", encoding="utf-8").read()}
         else:
             print("unknown")
-            raise Exception("Unknown file type")
+            raise UnknownException("Unknown file type")
     
 class SubtitleTranslation():
     def __init__(self, source_language, target_language, srt_file):
@@ -36,6 +43,9 @@ class SubtitleTranslation():
         data = file.read()
 
         if data["type"] == "json":
+
+            # TODO: Detect language using langdetect
+
             print("translate() json")
             # TODO: do processing (JSON)
         elif data["type"] == "srt":
