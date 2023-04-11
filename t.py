@@ -1,13 +1,10 @@
 from deep_translator import MyMemoryTranslator
 from langdetect import detect, DetectorFactory
 from os import system
+from exceptions import UnknownException
 import srt
 
 DetectorFactory.seed = 0
-
-class UnknownException(Exception):
-    def __init__(self, message):
-        self.message = message
 
 class SRTProcessing():
     def __init__(self, srt_file):
