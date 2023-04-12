@@ -17,6 +17,7 @@ Usage:
     subtitle_translation = SubtitleTranslation('en', 'es', '/path/to/srt/file.srt')
     subtitle_translation.translate()
 """
+import errno
 import os
 from typing import Union, List, Dict, Any
 import chardet
@@ -40,6 +41,9 @@ except ImportError as error:
 from exceptions import UnknownException, SRTException, TranslationError
 
 DetectorFactory.seed = 0
+
+# TODO: Add encoding support for more languages
+SUPPORTED_ENCODINGS = ['utf-8', 'UTF-8-SIG', 'ascii', 'iso-8859-1']
 
 class SRTProcessing:
     """
@@ -66,12 +70,14 @@ class SRTProcessing:
             srt_file (List[str]): A list of strings containing the SRT file data.
         """
         self.srt_file = srt_file
+
     def detect_encoding(self) -> str:
         """
         Detects the encoding of the SRT file.
 
         Raises:
             UnicodeDecodeError: If the SRT file is not encoded in any of the supported encodings.
+            FileNotFoundError: If the SRT file could not be found.
             IOError: If the SRT file could not be read.
         
         Returns:
@@ -81,17 +87,20 @@ class SRTProcessing:
             with open(self.srt_file, 'rb') as file:
                 raw_data = file.read()
                 encoding = chardet.detect(raw_data)['encoding']
-                if encoding is None:
+                if encoding is None or encoding not in SUPPORTED_ENCODINGS:
                     raise UnicodeDecodeError(
-                        f"Unsupported encoding detected in file. {self.srt_file}"
+                        encoding,
+                        raw_data,
+                        0,
+                        0,
+                        f"Unsupported encoding detected in file. {self.srt_file}",
                         )
                 return encoding
-        except UnicodeDecodeError as err:
-            raise UnicodeDecodeError(
-                f"Unsupported encoding detected in file. {self.srt_file}"
-                ) from err
+        except (UnicodeDecodeError, FileNotFoundError):
+            raise FileNotFoundError(errno.ENOENT, "The SRT file could not be found.") from None
         except IOError as err:
             raise IOError("Could not read the SRT file.") from err
+        
     def translate(self, source_language: str, target_language: str) -> List[str]:
         """
         Translates the captions in the SRT file to the target language.
@@ -202,7 +211,6 @@ class FileReader:
             return {"type": "json", "data": open(self.path, "r", encoding="utf-8").read()}
         print("unknown")
         raise UnknownException("Unknown file type")
-
 
 class SubtitleTranslation:
     """
