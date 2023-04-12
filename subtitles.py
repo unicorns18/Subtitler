@@ -17,10 +17,8 @@ Usage:
     subtitle_translation = SubtitleTranslation('en', 'es', '/path/to/srt/file.srt')
     subtitle_translation.translate()
 """
-import errno
 import os
 from typing import Union, List, Dict, Any
-import chardet
 
 try:
     import srt
@@ -42,139 +40,7 @@ from exceptions import UnknownException, SRTException, TranslationError
 
 DetectorFactory.seed = 0
 
-# TODO: Add encoding support for more languages
-SUPPORTED_ENCODINGS = ['utf-8', 'UTF-8-SIG', 'ascii', 'iso-8859-1']
-
-class SRTProcessing:
-    """
-    Class for processing SRT subtitle files.
-
-    Attributes:
-        srt_file (str): The path to the SRT file to be processed.
-
-    Raises:
-        IOError: If the SRT file could not be read.
-        SRTException: If the SRT file is invalid or malformed.
-        TranslationError: If an error occurs during translation.
-
-    Usage:
-        srt_processor = SRTProcessing('/path/to/srt/file.srt')
-        srt_processor.translate('en', 'es')
-    """
-
-    def __init__(self, srt_file: List[str]) -> None:
-        """
-        Initializes an instance of the SRTProcessing class.
-
-        Args:
-            srt_file (List[str]): A list of strings containing the SRT file data.
-        """
-        self.srt_file = srt_file
-
-    def detect_encoding(self) -> str:
-        """
-        Detects the encoding of the SRT file.
-
-        Raises:
-            UnicodeDecodeError: If the SRT file is not encoded in any of the supported encodings.
-            FileNotFoundError: If the SRT file could not be found.
-            IOError: If the SRT file could not be read.
-        
-        Returns:
-            str: The encoding of the SRT file.
-        """
-        try:
-            with open(self.srt_file, 'rb') as file:
-                raw_data = file.read()
-                encoding = chardet.detect(raw_data)['encoding']
-                if encoding is None or encoding not in SUPPORTED_ENCODINGS:
-                    raise UnicodeDecodeError(
-                        encoding,
-                        raw_data,
-                        0,
-                        0,
-                        f"Unsupported encoding detected in file. {self.srt_file}",
-                        )
-                return encoding
-        except (UnicodeDecodeError, FileNotFoundError):
-            raise FileNotFoundError(errno.ENOENT, "The SRT file could not be found.") from None
-        except IOError as err:
-            raise IOError("Could not read the SRT file.") from err
-        
-    def translate(self, source_language: str, target_language: str) -> List[str]:
-        """
-        Translates the captions in the SRT file to the target language.
-
-        Args:
-            source_language (str): The language of the captions in the SRT file.
-            target_language (str): The language to translate the captions to.
-
-        Raises:
-            IOError: If the SRT file could not be read.
-            SRTException: If the SRT file is invalid or malformed.
-            TranslationError: If an error occurs during translation.
-            
-        Returns:
-            List[str]: A list of strings containing the translated SRT file data.
-        """
-        try:
-            with open(self.srt_file, 'r', encoding=self.detect_encoding()) as file:
-                srt_data = file.read()
-        except IOError as err:
-            raise IOError("Could not read the SRT file.") from err
-        except UnicodeDecodeError as decode_error:
-            raise UnicodeDecodeError(
-                f"Unsupported encoding detected in file. {self.srt_file}"
-                ) from decode_error
-        
-        try:
-            subs = list(srt.parse(srt_data))
-        except srt.SRTParseError as srtparseerr:
-            raise SRTException("The SRT file is invalid or malformed.") from srtparseerr
-        
-        translated_subs = []
-
-        for sub in subs:
-            try:
-                source_lang = detect(sub.content)
-                if source_lang != source_language:
-                    continue
-            except Exception as trans_err:
-                raise TranslationError(
-                    "An error occurred while translating the subtitles."
-                    ) from trans_err
-            try:
-                translated_sub = self._translate_sub(sub.content, target_language)
-            except Exception as trans_err:
-                raise TranslationError(
-                    "An error occurred while translating the subtitles."
-                    ) from trans_err
-            
-            translated_subs.append(
-                srt.Subtitle(
-                    index=sub.index,
-                    start=sub.start,
-                    end=sub.end,
-                    content=translated_sub
-                )
-            )
-
-        return srt.compose(translated_subs)
-    
-    def _translate_sub(self, sub_content: str, target_language: str) -> str:
-        """
-        Translates a single subtitle to the target language.
-
-        Args:
-            sub_content (str): The content of the subtitle to be translated.
-            target_language (str): The language to translate the subtitle to.
-
-        Returns:
-            str: The translated subtitle.
-        """
-        # TODO: Implement translation logic
-        target_language = target_language.lower()
-        return sub_content
+SUPPORTED_ENCODINGS = ['utf-8', 'UTF-8-SIG', 'ascii', 'iso-8859-1', 'utf-16', 'utf-16-le', 'utf-16-be', 'cp1252', 'cp850', 'cp437']
 
 class FileReader:
     """
@@ -205,7 +71,7 @@ class FileReader:
         """
         if self.path.endswith(".srt"):
             print("srt")
-            return {"type": "srt", "data": srt.parse(open(self.path, "r", encoding="utf-8").read())}
+            return {"type": "srt", "data": list(srt.parse(open(self.path, "r", encoding="utf-8").read()))}
         if self.path.endswith(".json"):
             print("json")
             return {"type": "json", "data": open(self.path, "r", encoding="utf-8").read()}
@@ -216,10 +82,23 @@ class SubtitleTranslation:
     """
     A class for translating subtitle files from one language to another.
 
+    Raises:
+        TranslationError: If an error occurs while translating the subtitles.
+
     Attributes:
         source_language (str): The source language of the subtitles.
         target_language (str): The target language to which the subtitles should be translated.
         srt_file (str): The path to the subtitle file that should be translated.
+    
+    Methods:
+        translate(): Translates the captions in the subtitle file to the target language.
+        save(): Saves the translated subtitle file to the specified path.
+
+    Usage:
+        >>> from subtitle_translator import SubtitleTranslation
+        >>> translator = SubtitleTranslation("en", "de", "path/to/subtitle.srt")
+        >>> translator.translate()
+        >>> translator.save("path/to/translated_subtitle.srt")
     """
 
     def __init__(self, source_language: str, target_language: str, srt_file: str) -> None:
@@ -266,8 +145,3 @@ class SubtitleTranslation:
         if not os.path.isfile(path):
             raise IOError("Could not save file.")
         print(f"Saved file to {path}")
-
-
-os.system("cls")
-# st = SubtitleTranslation("ja", "en", "other\\transcription_replicate.json")
-# translation = st.translate()
