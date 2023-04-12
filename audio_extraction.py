@@ -1,12 +1,26 @@
 """
-This module provides a class for extracting audio from video files using the ffmpeg library.
+The audio_extraction module provides a simple interface for extracting audio from,
+video files using ffmpeg.
 
 Classes:
-    AudioExtraction: A class for extracting audio from video files.
+    - AudioExtraction: A class for extracting audio from video files.
 
 Exceptions:
-    AudioExtractionError:
-        An exception raised if an error occurs while extracting audio from a video file.
+    - AudioExtractionError: Raised when an error occurs while extracting audio from a video file.
+
+Usage:
+    To extract audio from a video file,
+    create an instance of AudioExtraction and call the extract method:
+
+```
+from audio_extraction import AudioExtraction, AudioExtractionError
+
+try:
+    audio_extractor = AudioExtraction('/path/to/video.mp4', '/path/to/audio.wav')
+    audio_extractor.extract_audio()
+except AudioExtractionError as e:
+    print('An error occurred while extracting audio:', e)
+```
 """
 
 import subprocess
