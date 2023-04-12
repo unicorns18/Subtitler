@@ -19,7 +19,11 @@ from typing import Any, Dict
 import os
 import srt
 
-from subtitles import FileReader
+from filereader import FileReader
+
+SUPPORTED_ENCODINGS = ['utf-8', 'UTF-8-SIG', 'ascii', 'iso-8859-1',
+                       'utf-16', 'utf-16-le', 'utf-16-be', 'cp1252', 'cp850', 'cp437']
+
 
 class SubtitleTranslation:
     """
@@ -32,7 +36,7 @@ class SubtitleTranslation:
         source_language (str): The source language of the subtitles.
         target_language (str): The target language to which the subtitles should be translated.
         srt_file (str): The path to the subtitle file that should be translated.
-    
+
     Methods:
         translate(): Translates the captions in the subtitle file to the target language.
         save(): Saves the translated subtitle file to the specified path.
@@ -74,7 +78,7 @@ class SubtitleTranslation:
             # TODO: do processing (SRT)
 
         return self.srt_file
-    
+
     def _translate_sub(self, sub_content: str, target_language: str) -> str:
         """
         Translates a single subtitle to the target language.
@@ -120,7 +124,8 @@ class SubtitleTranslation:
             raise IOError("Could not save file.")
         print(f"Saved file to {path}")
 
+
 os.system("cls")
-st = SubtitleTranslation("ja", "en", "test.srt")
-translation = st.translate()
-print(translation)
+# st = SubtitleTranslation("ja", "en", "test.srt")
+# translation = st.translate()
+# print(translation)
