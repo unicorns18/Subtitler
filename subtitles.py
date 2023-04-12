@@ -100,22 +100,29 @@ class SRTProcessing:
             source_language (str): The language of the captions in the SRT file.
             target_language (str): The language to translate the captions to.
 
+        Raises:
+            IOError: If the SRT file could not be read.
+            SRTException: If the SRT file is invalid or malformed.
+            TranslationError: If an error occurs during translation.
+            
         Returns:
             List[str]: A list of strings containing the translated SRT file data.
         """
         try:
             with open(self.srt_file, 'r', encoding=self.detect_encoding()) as file:
                 srt_data = file.read()
-        except UnicodeDecodeError as unicodedecodeerror:
-            raise UnicodeDecodeError(
-                f"Unsupported encoding detected in file. {self.srt_file}"
-                ) from unicodedecodeerror
         except IOError as err:
             raise IOError("Could not read the SRT file.") from err
+        except UnicodeDecodeError as decode_error:
+            raise UnicodeDecodeError(
+                f"Unsupported encoding detected in file. {self.srt_file}"
+                ) from decode_error
+        
         try:
             subs = list(srt.parse(srt_data))
         except srt.SRTParseError as srtparseerr:
             raise SRTException("The SRT file is invalid or malformed.") from srtparseerr
+        
         translated_subs = []
 
         for sub in subs:
@@ -123,16 +130,17 @@ class SRTProcessing:
                 source_lang = detect(sub.content)
                 if source_lang != source_language:
                     continue
-            except Exception as translationerror:
+            except Exception as trans_err:
                 raise TranslationError(
                     "An error occurred while translating the subtitles."
-                    ) from translationerror
+                    ) from trans_err
             try:
                 translated_sub = self._translate_sub(sub.content, target_language)
-            except Exception as error2:
+            except Exception as trans_err:
                 raise TranslationError(
                     "An error occurred while translating the subtitles."
-                    ) from error2
+                    ) from trans_err
+            
             translated_subs.append(
                 srt.Subtitle(
                     index=sub.index,
@@ -143,6 +151,7 @@ class SRTProcessing:
             )
 
         return srt.compose(translated_subs)
+    
     def _translate_sub(self, sub_content: str, target_language: str) -> str:
         """
         Translates a single subtitle to the target language.
