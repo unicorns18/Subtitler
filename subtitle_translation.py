@@ -18,12 +18,18 @@ Usage:
 from typing import Any, Dict
 import os
 import srt
+import langdetect
 
+from langdetect.lang_detect_exception import LangDetectException
 from filereader import FileReader
+
+from exceptions import TranslationError
+
+from deep_translator import MyMemoryTranslator
+from deep_translator.exceptions import NotValidLength, NotValidPayload, TranslationNotFound
 
 SUPPORTED_ENCODINGS = ['utf-8', 'UTF-8-SIG', 'ascii', 'iso-8859-1',
                        'utf-16', 'utf-16-le', 'utf-16-be', 'cp1252', 'cp850', 'cp437']
-
 
 class SubtitleTranslation:
     """
@@ -66,48 +72,39 @@ class SubtitleTranslation:
         file = FileReader(self.srt_file)
         data: Dict[str, Any] = file.read()
 
-        print(data)
-
         if data["type"] == "json":
-            # TODO: Detect language using langdetect
-
             print("translate() json")
             # TODO: do processing (JSON)
         elif data["type"] == "srt":
-            print("translate() srt")
-            # TODO: do processing (SRT)
+            srt_contents = data["data"]
+            content, translated_content = [], []
+            for sub in srt_contents:
+                content.append(sub.content)
+            try:
+                detected_language = langdetect.detect(" ".join(content))
+            except LangDetectException as e:
+                raise TranslationError("Could not detect language.") from e
+            print(f"Detected language: {detected_language}")
 
-        return self.srt_file
+            if detected_language != self.source_language:
+                raise TranslationError("Detected language does not match source language.")
+            
+            for sub in content:
+                try:
+                    translated = MyMemoryTranslator(source=self.source_language, target=self.target_language).translate(sub)
+                except (NotValidLength, NotValidPayload, TranslationNotFound) as e:
+                    raise TranslationError("Could not translate subtitles.") from e
+                print(f"Translated: {sub} -> {translated}")
+                print("")
+                translated_content.append(translated)
 
-    def _translate_sub(self, sub_content: str, target_language: str) -> str:
-        """
-        Translates a single subtitle to the target language.
-
-        Args:
-            sub_content (str): The content of the subtitle to be translated.
-            target_language (str): The language to translate the subtitle to.
-
-        Raises:
-            NotImplementedError: If the method is not implemented.
-            ValueError: If the target language is not supported.
-            LangDetectException: If the language of the subtitle could not be detected.
-
-        Returns:
-            str: The translated subtitle.
-        """
-        supported_languages = [
-            'af', 'am', 'ar', 'as', 'az', 'ba', 'be', 'bg', 'bn', 'bo', 'br', 'bs', 'ca', 'cs',
-            'es', 'et', 'eu', 'fa', 'fi', 'fo', 'fr', 'gl', 'gu', 'ha', 'haw', 'he', 'hi', 'hr',
-            'it', 'ja', 'jw', 'ka', 'kk', 'km', 'kn', 'ko', 'la', 'lb', 'ln', 'lo', 'lt', 'lv',
-            'mi', 'mk', 'ml', 'mn', 'da', 'de', 'el', 'en', 'hu', 'hy', 'id', 'is', 'ro', 'ru',
-            'mr', 'ms', 'mt', 'my', 'ne', 'nl', 'nn', 'no', 'oc', 'pa', 'pl', 'ps', 'lt', 'lv',
-            'sl', 'sn', 'so', 'sq', 'sr', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'sd', 'si',
-            'tk', 'tl', 'tr', 'tt', 'uk', 'ur', 'uz', 'vi', 'yi', 'yo', 'zh',
-            'pt', 'sk', 'mg', 'sa', 'mg', 'ht', 'cy',
-        ]
-        if target_language not in supported_languages:
-            raise ValueError("The target language is not supported.")
-
+            for i, sub in enumerate(srt_contents):
+                sub.content = translated_content[i]
+            self.srt_file = srt_contents
+            return srt_contents
+        else:
+            raise TranslationError("Could not read file.")
+    
     def save(self, path: str) -> None:
         """
         Saves the current SRT data to a file.
@@ -126,6 +123,7 @@ class SubtitleTranslation:
 
 
 os.system("cls")
-# st = SubtitleTranslation("ja", "en", "test.srt")
-# translation = st.translate()
-# print(translation)
+st = SubtitleTranslation("ja", "en", "test_ja.srt")
+translation = st.translate()
+st.save("test_translated_en.srt")
+print(translation)

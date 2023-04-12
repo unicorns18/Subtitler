@@ -56,6 +56,9 @@ class FileReader:
         print("unknown")
         raise UnknownException("Unknown file type")
     
-# fr = FileReader("test.srt")
-# data = fr.read()
-# print(data)
+# try:
+#     fr = FileReader("test.srt")
+#     data = fr.read()
+#     print(data)
+# except UnknownException as e:
+#     raise UnknownException("Unknown file type") from e
