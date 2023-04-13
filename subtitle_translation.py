@@ -1,3 +1,4 @@
+#pylint: disable=logging-not-lazy, logging-fstring-interpolation
 """
 This module provides a SubtitleTranslation class,
 that can be used to translate subtitle files from,
@@ -15,9 +16,11 @@ Usage:
     >>> translator.translate()
     >>> translator.save("path/to/translated_subtitle.srt")
 """
-from typing import Any, Dict
+import logging
+from typing import Any, Dict, List
 import os
 import srt
+from srt import Subtitle
 import langdetect
 
 from langdetect.lang_detect_exception import LangDetectException
@@ -30,6 +33,8 @@ from deep_translator.exceptions import NotValidLength, NotValidPayload, Translat
 
 SUPPORTED_ENCODINGS = ['utf-8', 'UTF-8-SIG', 'ascii', 'iso-8859-1',
                        'utf-16', 'utf-16-le', 'utf-16-be', 'cp1252', 'cp850', 'cp437']
+
+logger = logging.getLogger(__name__)
 
 class SubtitleTranslation:
     """
@@ -76,32 +81,40 @@ class SubtitleTranslation:
             print("translate() json")
             # TODO: do processing (JSON)
         elif data["type"] == "srt":
-            srt_contents = data["data"]
+            srt_contents: List[Subtitle] = data["data"]
             content, translated_content = [], []
+
             for sub in srt_contents:
                 content.append(sub.content)
+
             try:
                 detected_language = langdetect.detect(" ".join(content))
-            except LangDetectException as e:
-                raise TranslationError("Could not detect language.") from e
-            print(f"Detected language: {detected_language}")
+            except LangDetectException as langdetect_exception:
+                logger.exception("Could not detect language.")
+                raise TranslationError("Could not detect language.") from langdetect_exception
+            logger.debug(f"Detected language: {detected_language}")
 
             if detected_language != self.source_language:
-                raise TranslationError("Detected language does not match source language.")
-            
-            for sub in content:
-                try:
-                    translated = MyMemoryTranslator(source=self.source_language, target=self.target_language).translate(sub)
-                except (NotValidLength, NotValidPayload, TranslationNotFound) as e:
-                    raise TranslationError("Could not translate subtitles.") from e
-                print(f"Translated: {sub} -> {translated}")
-                print("")
-                translated_content.append(translated)
+                logger.warning(f"Detected language ({detected_language}) does not match source language ({self.source_language}).")
+                raise TranslationError(f"Detected language ({detected_language}) does not match source language ({self.source_language}).")
 
-            for i, sub in enumerate(srt_contents):
-                sub.content = translated_content[i]
+            for subtitle_content in content:
+                try:
+                    translated_subtitle = MyMemoryTranslator(
+                        source=self.source_language,
+                        target=self.target_language,
+                    ).translate(subtitle_content)
+                except (NotValidLength, NotValidPayload, TranslationNotFound) as translation_exception:
+                    logger.exception("Could not translate subtitle.")
+                    raise TranslationError("Could not translate subtitle.") from translation_exception
+                logger.debug(f"Translated: {subtitle_content} -> {translated_subtitle}")
+                logger.debug("")
+                translated_content.append(translated_subtitle)
+
+            for i, subtitle in enumerate(srt_contents):
+                subtitle.content = translated_content[i]
             self.srt_file = srt_contents
-            return srt_contents
+            return str(self.srt_file)
         else:
             raise TranslationError("Could not read file.")
     
@@ -121,9 +134,8 @@ class SubtitleTranslation:
             raise IOError("Could not save file.")
         print(f"Saved file to {path}")
 
-
 os.system("cls")
 st = SubtitleTranslation("ja", "en", "test_ja.srt")
 translation = st.translate()
-st.save("test_translated_en.srt")
+st.save("test_en.srt")
 print(translation)

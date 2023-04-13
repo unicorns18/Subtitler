@@ -46,10 +46,15 @@ class FileReader:
         """
         if self.path.endswith(".srt"):
             print("srt")
-            return {
-                "type": "srt",
-                "data": list(srt.parse(open(self.path, "r", encoding="utf-8").read()))
-            }
+            # return {
+            #     "type": "srt",
+            #     "data": list(srt.parse(open(self.path, "r", encoding="utf-8").read()))
+            # }
+            with open(self.path, "r", encoding="utf-8") as file:
+                return {
+                    "type": "srt",
+                    "data": list(srt.parse(file.read()))
+                }
         if self.path.endswith(".json"):
             print("json")
             return {"type": "json", "data": open(self.path, "r", encoding="utf-8").read()}

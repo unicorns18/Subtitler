@@ -1,7 +1,13 @@
 1
 00:00:10,500 --> 00:00:13,000
-Example subtitle
+Look! It's a huge explosion!
 
 2
 00:00:14,000 --> 00:00:16,500
-Another subtitle
+Damage caused by disaster victims continues to expand on an unprecedented scale.
+At present, the level of disaster is being judged on the boundary side... (explosion sound)
+
+3
+00:00:17,000 --> 00:00:19,500
+- God. -Wait a minute.
+
