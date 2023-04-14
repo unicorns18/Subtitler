@@ -67,7 +67,7 @@ class FileReader:
             SRTParseError: If the file is not a valid SRT file.
         """
         if not self.path.exists():
-            raise FileNotFoundError(f"File could not be found: {self.path}")
+            raise FileNotFoundError(f"File could not be found: {self.path.resolve()}")
 
         if self.path.suffix not in (".srt", ".json", ".jsonl"):
             raise SubtitleTypeNotRecognized(f"File type not recognized: {self.path.suffix}")
