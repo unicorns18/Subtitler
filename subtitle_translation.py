@@ -128,11 +128,12 @@ class SubtitleTranslation:
         Raises:
             IOError: If the file could not be saved.
         """
-        with open(path, "w", encoding="utf-8") as file:
-            file.write(srt.compose(self.srt_file))
-        if not os.path.isfile(path):
-            raise IOError("Could not save file.")
-        print(f"Saved file to {path}")
+        try:
+            with open(path, "w", encoding="utf-8") as file:
+                file.write(srt.compose(self.srt_file))
+        except IOError as io_error:
+            logger.exception("Could not save file.")
+            raise IOError("Could not save file.") from io_error
 
 os.system("cls")
 st = SubtitleTranslation("ja", "en", "test_ja.srt")

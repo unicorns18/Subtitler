@@ -62,4 +62,33 @@ class TranslationError(Exception):
         parameter should be used to describe the specific details of the error. For example:
         `raise TranslationError("Could not translate the subtitles.")`
     """
-    
+
+class FileReadError(Exception):
+    """
+    An exception class for handling errors that occur during file reading.
+
+    Usage:
+        This exception can be raised when an error occurs during file reading. The `message`
+        parameter should be used to describe the specific details of the error. For example:
+        `raise FileReadError("Could not read the file.")`
+    """
+
+class SubtitleTypeNotRecognized(Exception):
+    """
+    An exception class for handling errors that occur when the subtitle type is not recognized.
+
+    Usage:
+        This exception can be raised when an error occurs when the subtitle type is not recognized.
+        The `message` parameter should be used to describe the specific details of the error. For example:
+        `raise SubtitleTypeNotRecognized("Could not recognize the subtitle type.")`
+    """
+
+class SRTParseError(Exception):
+    """
+    An exception class for handling errors that occur when the SRT file cannot be parsed.
+
+    Usage:
+        This exception can be raised when an error occurs when the SRT file cannot be parsed.
+        The `message` parameter should be used to describe the specific details of the error. For example:
+        `raise SRTParseError("Could not parse the SRT file.")`
+    """
