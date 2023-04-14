@@ -96,3 +96,15 @@ class SRTParseError(Exception):
         For example:
         `raise SRTParseError("Could not parse the SRT file.")`
     """
+
+class InvalidEnumValueError(ValueError):
+    """
+    The InvalidEnumValueError class is a custom exception class that is used to handle errors related to invalid enum values. This class inherits from the built-in ValueError class and can be used to provide more detailed error messages to users of the application when an invalid enum value is encountered.
+
+    Methods:
+        - __init__(self, message: str): This method is the constructor for the InvalidEnumValueError class. It takes a message parameter that is used to set the error message for the exception.
+
+    Fields:
+        - None. The InvalidEnumValueError class does not define any additional fields beyond those inherited from the ValueError class.
+
+    """

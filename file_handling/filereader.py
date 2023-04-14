@@ -20,7 +20,7 @@ Usage:
     >>> from subtitles import FileReader
     >>> file = FileReader("path/to/subtitle.srt")
     >>> file.read()
-    {'type': SubtitleType, 'data': [Subtitle(index=1, start=datetime.timedelta(seconds=10, microseconds=500000), end=datetime.timedelta(seconds=13), content="Look! It's a huge explosion!", proprietary='')]} # #pylint: disable=line-too-long
+    {'type': SubtitleType.SRT, 'data': [Subtitle(index=1, start=datetime.timedelta(seconds=10, microseconds=500000), end=datetime.timedelta(seconds=13), content="Look! It's a huge explosion!", proprietary='')]} # #pylint: disable=line-too-long
 """
 from typing import Any, Dict, List, Union
 from pathlib import Path
@@ -28,7 +28,7 @@ import os
 import sys
 import srt
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) #pylint: disable=import-error, wrong-import-position
-from exceptions.exceptions import UnknownException, FileReadError, SubtitleTypeNotRecognized, SRTParseError
+from exceptions.exceptions import FileReadError, SubtitleTypeNotRecognized, SRTParseError
 from enums.subtitletype import SubtitleType
 
 class FileReader:
