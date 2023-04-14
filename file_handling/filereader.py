@@ -94,18 +94,18 @@ class FileReader:
                     
         raise FileReadError(f"File could not be read: {self.path}")
      
-try:
-    input_file = input("1 for JSON, 2 for SRT, 3 for none: ")
-    if input_file == "1":
-        fr = FileReader("../files/whisper-1-new.json")
-    elif input_file == "2":
-        fr = FileReader("test_en.srt")
-    elif input_file == "3":
-        exit()
-    else:
-        raise ValueError("Invalid input")
-    data = fr.read()
-    print(data)
-except (UnknownException, FileNotFoundError, FileReadError) as exception:
-    print(exception)
-    raise exception
+# try:
+#     input_file = input("1 for JSON, 2 for SRT, 3 for none: ")
+#     if input_file == "1":
+#         fr = FileReader("../files/whisper-1-new.json")
+#     elif input_file == "2":
+#         fr = FileReader("test_en.srt")
+#     elif input_file == "3":
+#         exit()
+#     else:
+#         raise ValueError("Invalid input")
+#     data = fr.read()
+#     print(data)
+# except (UnknownException, FileNotFoundError, FileReadError) as exception:
+#     print(exception)
+#     raise exception
