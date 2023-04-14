@@ -14,13 +14,13 @@ Methods:
     read(): Reads the subtitle file data and returns it in a dictionary format.
 
 Returns:
-    data (Dict[str, Any]): A dictionary containing the subtitle file data.
+    data (Dict[str, Union[str, List[Any]]]): A dictionary containing the subtitle file data.
 
 Usage:
     >>> from subtitles import FileReader
     >>> file = FileReader("path/to/subtitle.srt")
     >>> file.read()
-    {'type': 'srt', 'data': [Subtitle(index=1, start=datetime.timedelta(seconds=10, microseconds=500000), end=datetime.timedelta(seconds=13), content="Look! It's a huge explosion!", proprietary='')]} # #pylint: disable=line-too-long
+    {'type': SubtitleType, 'data': [Subtitle(index=1, start=datetime.timedelta(seconds=10, microseconds=500000), end=datetime.timedelta(seconds=13), content="Look! It's a huge explosion!", proprietary='')]} # #pylint: disable=line-too-long
 """
 from typing import Any, Dict, List, Union
 from pathlib import Path
