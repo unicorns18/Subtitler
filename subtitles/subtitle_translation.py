@@ -24,9 +24,9 @@ from srt import Subtitle
 import langdetect
 
 from langdetect.lang_detect_exception import LangDetectException
-from filereader import FileReader
+from file_handling.filereader import FileReader
 
-from exceptions import TranslationError
+from exceptions.exceptions import TranslationError
 
 from deep_translator import MyMemoryTranslator
 from deep_translator.exceptions import NotValidLength, NotValidPayload, TranslationNotFound

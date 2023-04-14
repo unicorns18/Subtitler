@@ -33,6 +33,6 @@ except (ModuleNotFoundError, ImportError) as error:
         "Please install it using `pip install langdetect`."
     ) from error
 
-from exceptions import UnknownException, SRTException, TranslationError
+from exceptions.exceptions import UnknownException, SRTException, TranslationError
 
 SUPPORTED_ENCODINGS = ['utf-8', 'UTF-8-SIG', 'ascii', 'iso-8859-1', 'utf-16', 'utf-16-le', 'utf-16-be', 'cp1252', 'cp850', 'cp437']

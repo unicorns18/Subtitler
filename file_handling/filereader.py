@@ -26,8 +26,8 @@ from typing import Any, Dict, List, Union
 from pathlib import Path
 import os
 import srt
-from exceptions import UnknownException, FileReadError, SubtitleTypeNotRecognized, SRTParseError
-from subtitletype import SubtitleType
+from exceptions.exceptions import UnknownException, FileReadError, SubtitleTypeNotRecognized, SRTParseError
+from enums.subtitletype import SubtitleType
 
 class FileReader:
     """

@@ -6,9 +6,9 @@ import errno
 import srt
 import chardet
 
-from exceptions import SRTException, TranslationError
+from exceptions.exceptions import SRTException, TranslationError
 
-from subtitle_translation import SubtitleTranslation
+from subtitles.subtitle_translation import SubtitleTranslation
 
 try:
     from langdetect import detect

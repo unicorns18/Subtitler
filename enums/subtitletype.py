@@ -14,7 +14,7 @@ Fields:
     - UNKNOWN: This constant represents an unknown subtitle type and has a string value of "unknown".
 """
 from dataclasses import dataclass
-from uniquevalueenum import UniqueValueEnum
+from enums.uniquevalueenum import UniqueValueEnum
 
 @dataclass
 class SubtitleType(UniqueValueEnum):
