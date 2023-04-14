@@ -98,7 +98,7 @@ try:
     if input_file == "1":
         fr = FileReader("other/whisper-1-new.json")
     elif input_file == "2":
-        fr = FileReader("test_en.srt")
+        fr = FileReader("other/test_en.srt")
     elif input_file == "3":
         exit()
     else:

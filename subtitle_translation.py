@@ -136,7 +136,7 @@ class SubtitleTranslation:
             raise IOError("Could not save file.") from io_error
 
 os.system("cls")
-st = SubtitleTranslation("ja", "en", "test_ja.srt")
+st = SubtitleTranslation("ja", "en", "other/test_ja.srt")
 translation = st.translate()
-st.save("test_en.srt")
+st.save("other/test_en.srt")
 print(translation)
