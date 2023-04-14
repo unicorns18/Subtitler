@@ -1,4 +1,4 @@
-#pylint: disable=line-too-long
+#pylint: disable=line-too-long,E1101
 """
 The FileReader class reads a subtitle file and returns its data in a dictionary format. It can handle files with extensions .srt, .json, and .jsonl. The read() method reads the file data and returns it in a dictionary format with the type of the file and its data. It raises exceptions if the file type is not recognized, the file could not be found, or the file could not be read.
 
@@ -25,7 +25,9 @@ Usage:
 from typing import Any, Dict, List, Union
 from pathlib import Path
 import os
+import sys
 import srt
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) #pylint: disable=import-error, wrong-import-position
 from exceptions.exceptions import UnknownException, FileReadError, SubtitleTypeNotRecognized, SRTParseError
 from enums.subtitletype import SubtitleType
 
@@ -76,7 +78,7 @@ class FileReader:
                     with open(self.path, "r", encoding="utf-8") as file:
                         try:
                             return {
-                                "type": SubtitleType.SRT,
+                                "type": SubtitleType.SRT.name,
                                 "data": list(srt.parse(file.read()))
                             }
                         except srt.SRTParseError as srt_parse_error:
@@ -86,7 +88,7 @@ class FileReader:
                 if os.path.isfile(self.path) and os.path.getsize(self.path) > 0:
                     with open(self.path, "r", encoding="utf-8") as file:
                         return {
-                            "type": SubtitleType.JSON if self.path.suffix == ".json" else SubtitleType.JSONL,
+                            "type": SubtitleType.JSON.name if self.path.suffix == ".json" else SubtitleType.JSONL.name,
                             "data": file.read()
                         }
                     
@@ -95,9 +97,9 @@ class FileReader:
 try:
     input_file = input("1 for JSON, 2 for SRT, 3 for none: ")
     if input_file == "1":
-        fr = FileReader("other/whisper-1-new.json")
+        fr = FileReader("../files/whisper-1-new.json")
     elif input_file == "2":
-        fr = FileReader("other/test_en.srt")
+        fr = FileReader("test_en.srt")
     elif input_file == "3":
         exit()
     else:

@@ -56,5 +56,8 @@ class SubtitleType(UniqueValueEnum):
         """
         return subtitle_type in cls.__members__
     
+    def __repr__(self):
+        return f"{self.__class__.__name__}.{self.name}"
+    
     def __str__(self):
         return self.value

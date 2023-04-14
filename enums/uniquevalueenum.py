@@ -30,7 +30,8 @@ class UniqueValueEnum(Enum):
 
     Methods:
         __init__: This method is used internally by the Enum class to initialize new instances of the enumeration. It raises a ValueError if the value of the constant is not unique.
-
+        __new__: This method is used internally by the Enum class to create new instances of the enumeration. It takes two arguments: the name of the constant and its value.
+        
     Raises:
         ValueError: If the value of the constant is not unique.
 
@@ -42,15 +43,13 @@ class UniqueValueEnum(Enum):
         ...     JSONL = "jsonl"
         ...     UNKNOWN = "unknown"
     """
-    def __new__(cls, value):
-        obj = object.__new__(cls)
-        obj._value_ = value
-        if any(c1.value == value for c1 in cls):
-            raise ValueError(f"duplicate value: {value!r}")
-        return obj
-
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         cls = self.__class__
         if any(self.value == e.value for e in cls):
             raise ValueError(f'duplicate value: {self.value!r}')
         super().__init__()
+
+    def __new__(cls, value, *args, **kwargs):
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj

@@ -4,10 +4,14 @@ The module defines two exception classes:
 
 - NoDotEnvFile: An exception that is raised when a `.env` file is not found.
 - UnknownException: An exception that is raised when an unknown or unexpected error occurs.
+- AudioExtractionError: An exception that is raised when an error occurs during audio extraction.
+- SRTException: An exception that is raised when an error occurs during SRT processing.
+- TranslationError: An exception that is raised when an error occurs during translation.
+- FileReadError: An exception that is raised when an error occurs during file reading.
+- SubtitleTypeNotRecognized: An exception that is raised when the subtitle type is not recognized.
 
 These exceptions can be used to provide more detailed error messages to users of the application.
 """
-
 
 class NoDotEnvFile(Exception):
     """
@@ -31,7 +35,6 @@ class UnknownException(Exception):
         `raise UnknownException("An unknown error occurred.")`
     """
 
-
 class AudioExtractionError(Exception):
     """
     An exception class for handling errors that occur during audio extraction.
@@ -41,7 +44,6 @@ class AudioExtractionError(Exception):
         parameter should be used to describe the specific details of the error. For example:
         `raise AudioExtractionError("Could not extract audio from the video file.")`
     """
-
 
 class SRTException(Exception):
     """
@@ -79,7 +81,8 @@ class SubtitleTypeNotRecognized(Exception):
 
     Usage:
         This exception can be raised when an error occurs when the subtitle type is not recognized.
-        The `message` parameter should be used to describe the specific details of the error. For example:
+        The `message` parameter should be used to describe the specific details of the error.
+        For example:
         `raise SubtitleTypeNotRecognized("Could not recognize the subtitle type.")`
     """
 
@@ -89,6 +92,7 @@ class SRTParseError(Exception):
 
     Usage:
         This exception can be raised when an error occurs when the SRT file cannot be parsed.
-        The `message` parameter should be used to describe the specific details of the error. For example:
+        The `message` parameter should be used to describe the specific details of the error.
+        For example:
         `raise SRTParseError("Could not parse the SRT file.")`
     """
