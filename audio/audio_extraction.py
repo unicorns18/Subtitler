@@ -37,7 +37,7 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # pylint: disable=import-error, wrong-import-position
-from exceptions.exceptions import AudioExtractionError
+from exceptions.exceptions import AudioExtractionError, InvalidLanguageChoiceError
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -80,8 +80,13 @@ class AudioExtraction:
 
         Parameters
         ----------
-        language_track_mapping: dict
+        language_track_mapping: dict[str, str]
             Language track mapping.
+
+        Raises
+        ------
+        InvalidLanguageChoiceError
+            If the language choice is invalid.
 
         Returns
         -------
@@ -90,7 +95,7 @@ class AudioExtraction:
         """
         logging.info("Available languages:")
         for index, language in enumerate(language_track_mapping, start=1):
-            logging.info(f"[{index}] {language}: {language_track_mapping[language]}")
+            logging.info("[%d] %s: %s", index, language, language_track_mapping[language])
 
         while True:
             user_input = input("Please choose a language (Example: eng or 1): ")
@@ -101,8 +106,11 @@ class AudioExtraction:
                 user_input = list(language_track_mapping.keys())[language_index]
                 break
             else:
-                logging.warning("Invalid language choice: %s. Please choose between 1 and %d, or a valid language code.",
-                                user_input, len(language_track_mapping))
+                raise InvalidLanguageChoiceError(
+                     f"Invalid language choice: {user_input} "
+                     f"Please choose between 1 and {len(language_track_mapping)},"
+                     " or a valid language code."
+                     )
 
         return user_input
 
@@ -184,10 +192,10 @@ class AudioExtraction:
         if language_choice is None:
             language_choice = self.get_language_choice(language_track_mapping)
         if language_choice not in language_track_mapping:
-            raise ValueError(f"Invalid language choice: {language_choice}")
+            raise InvalidLanguageChoiceError(f"Invalid language choice: {language_choice}")
         track_number = language_track_mapping[language_choice]
 
-        print("You have selected track number: ", track_number)
+        logging.info("Track number: %s, Language: %s", track_number, language_choice)
 
         exit(0)
 

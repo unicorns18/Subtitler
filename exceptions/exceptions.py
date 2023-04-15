@@ -57,3 +57,5 @@ class InvalidEnumValueError(ValueError):
     """
     Exception raised when the value of enum is invalid.
     """
+class InvalidLanguageChoiceError(Exception):
+    """Raised when the user provides an invalid language choice."""
