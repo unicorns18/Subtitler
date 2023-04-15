@@ -22,20 +22,18 @@ except AudioExtractionError as e:
     print('An error occurred while extracting audio:', e)
 ```
 """
-import contextlib
-import shlex
 import subprocess
 import os
 import sys
 import logging
+from pathlib import Path
 from typing import Dict, List, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # pylint: disable=import-error, wrong-import-position
 from exceptions.exceptions import AudioExtractionError
 
-from pathlib import Path
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class AudioExtraction:
     """
@@ -77,24 +75,26 @@ class AudioExtraction:
         logging.info("Available languages: ")
         for language in language_track_mapping:
             logging.info("%s: %s", language, language_track_mapping[language])
-        
+
         # Prompt user for language choice
-        language_choice = input("Please choose a language (Example: eng or 1): ")
-        
+        language_choice = input(
+            "Please choose a language (Example: eng or 1): ")
+
         # If the user's choice is a digit, convert it to an integer and verify it's valid
         if language_choice.isdigit():
             language_choice = int(language_choice)
             if language_choice < 1 or language_choice > len(language_track_mapping):
                 raise ValueError(f"Invalid language choice: {language_choice}")
             # Convert the integer back to the corresponding language choice
-            language_choice = list(language_track_mapping.keys())[language_choice - 1]
+            language_choice = list(language_track_mapping.keys())[
+                language_choice - 1]
         else:
             # Verify that the user's choice is valid
             if language_choice not in language_track_mapping:
                 raise ValueError(f"Invalid language choice: {language_choice}")
         # Return the language choice
         return language_choice
-    
+
     def extract_audio(self) -> None:
         """
         Extracts the audio track from the input video file.
@@ -120,14 +120,16 @@ class AudioExtraction:
         language_choice: Optional[str] = None
         language_track_mapping: Dict[str, str] = {}
         input_video_file = Path(self.input_video_file_path)
-        
+
         # Check if the input video file exists
         if not input_video_file.is_file():
-            raise FileNotFoundError(f"Input video file not found: {input_video_file}")
-        
+            raise FileNotFoundError(
+                f"Input video file not found: {input_video_file}")
+
         # Check if the output directory exists
         if not Path(self.output_audio_file_path).parent.is_dir():
-            raise FileNotFoundError(f"Output directory not found: {self.output_audio_file_path.parent}")
+            raise FileNotFoundError(
+                f"Output directory not found: {self.output_audio_file_path.parent}")
 
         # Execute ffprobe command to extract audio tracks information
         try:
@@ -145,15 +147,18 @@ class AudioExtraction:
 
         # Get the output of ffprobe command
         try:
-            audio_tracks_info = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode('utf-8').split('\n')
+            audio_tracks_info = subprocess.check_output(
+                command, shell=True, stderr=subprocess.STDOUT).decode('utf-8').split('\n')
         except subprocess.CalledProcessError as error:
             raise AudioExtractionError(error.output.decode('utf-8')) from error
         except FileNotFoundError as error:
             raise AudioExtractionError(error) from error
 
         # Remove empty elements from the output list and remove the '\r' character from each element
-        audio_tracks_info = [track for track in audio_tracks_info if track != '']
-        formatted_audio_tracks_info = [el.strip() for el in audio_tracks_info]  # remove the \r character from each element
+        audio_tracks_info = [
+            track for track in audio_tracks_info if track != '']
+        # remove the \r character from each element
+        formatted_audio_tracks_info = [el.strip() for el in audio_tracks_info]
 
         # Create a language to track number mapping dictionary
         language_track_mapping = {}
@@ -172,19 +177,27 @@ class AudioExtraction:
         print("You have selected track number", track_number)
 
         # Sanitize command
-        command = f'ffmpeg -i {self.input_video_file_path} -map 0:a:{track_number} -c copy {self.output_audio_file_path}'
-        
-        # Execute ffmpeg command to extract audio track from the input video file and save it to the output audio file
+        command = (
+            f'ffmpeg -i {self.input_video_file_path} '
+            f'-map 0:a:{track_number} '
+            f'-c copy {self.output_audio_file_path}'
+        )
+
+        # Execute ffmpeg command to extract audio track from the input video file,
+        # and save it to the output audio file
         try:
-            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
+            result = subprocess.run(
+                command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
             if result.returncode != 0:
                 raise AudioExtractionError(result.stderr.decode('utf-8'))
         except FileNotFoundError as error:
             raise AudioExtractionError(error) from error
         except subprocess.CalledProcessError as error:
-            raise AudioExtractionError(error.stderr.decode('utf-8'))
-        
-        logging.info("Audio track: %s, audio_track_lang: %s extracted successfully.", track_number, language_choice)
+            raise AudioExtractionError(error.stderr.decode('utf-8')) from error
+
+        logging.info("Audio track: %s, audio_track_lang: %s extracted successfully.",
+                     track_number, language_choice)
+
 
 try:
     ae = AudioExtraction("E:\\S01E01.mkv", "E:\\S01E01_jpn.wav")
