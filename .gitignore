@@ -3,3 +3,8 @@ __pycache__/
 .vscode/
 whisper.py
 .env
+*.wav
+audio/audio_files/*.wav
+audio/audio_files/*.mp3
+audio/audio_files/*.mkv
+*.mkv
