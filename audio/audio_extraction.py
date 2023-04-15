@@ -212,7 +212,9 @@ class AudioExtraction:
         except FileNotFoundError as file_not_found_error:
             raise AudioExtractionError(file_not_found_error) from file_not_found_error
         except subprocess.CalledProcessError as called_process_error:
-            raise AudioExtractionError(called_process_error.stderr.decode('utf-8')) from called_process_error
+            raise AudioExtractionError(
+                called_process_error.stderr.decode('utf-8')
+            ) from called_process_error
 
         logging.info("Audio track: %s, audio_track_lang: %s extracted successfully.",
                      track_number, language_choice)
