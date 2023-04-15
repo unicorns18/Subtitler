@@ -6,12 +6,20 @@ Classes:
     - AudioExtraction: A class for extracting audio from video files.
 
 Exceptions:
-    - AudioExtractionError: Raised when an error occurs while extracting audio from a video file.
+    AudioExtractionError: If the audio track can't be extracted from the input video file.
+    FileNotFoundError: If the input video file or output directory doesn't exist.
+    ValueError: If the language choice is invalid.
+
+Fields:
+    - input_video_file_path: Path of input video file.
+    - output_audio_file_path: Path of output audio file.
+
+Methods:
+    - extract_audio: Extracts audio from video.
 
 Usage:
-    To extract audio from a video file,
-    create an instance of AudioExtraction and call the extract method:
-
+To extract audio from a video file,
+create an instance of AudioExtraction and call the extract_audio method:
 ```
 from audio_extraction import AudioExtraction, AudioExtractionError
 
@@ -34,7 +42,6 @@ from exceptions.exceptions import AudioExtractionError
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class AudioExtraction:
     """
     Audio Extraction from video.
@@ -48,9 +55,19 @@ class AudioExtraction:
 
     Methods
     -------
-    extract(self)
+    get_language_choice(language_track_mapping: dict) -> str
+        Get the language choice.
+    extract_audio() -> None
         Extracts audio from video.
 
+    Raises
+    ------
+    AudioExtractionError
+        If the audio track can't be extracted from the input video file.
+    FileNotFoundError
+        If the input video file or output directory doesn't exist.
+    ValueError
+        If the language choice is invalid.
     """
 
     def __init__(self, input_video_file_path: str, output_audio_file_path: str) -> None:
@@ -142,17 +159,19 @@ class AudioExtraction:
                 self.input_video_file_path
             ]
             audio_tracks_info: List[str] = []
-        except subprocess.CalledProcessError as error:
-            raise AudioExtractionError(error) from error
+        except subprocess.CalledProcessError as ex:
+            raise AudioExtractionError(ex) from ex
 
         # Get the output of ffprobe command
         try:
             audio_tracks_info = subprocess.check_output(
                 command, shell=True, stderr=subprocess.STDOUT).decode('utf-8').split('\n')
-        except subprocess.CalledProcessError as error:
-            raise AudioExtractionError(error.output.decode('utf-8')) from error
-        except FileNotFoundError as error:
-            raise AudioExtractionError(error) from error
+        except subprocess.CalledProcessError as subprocess_error:
+            raise AudioExtractionError(
+                subprocess_error.output.decode('utf-8')
+            ) from subprocess_error
+        except FileNotFoundError as file_not_found_error:
+            raise AudioExtractionError(file_not_found_error) from file_not_found_error
 
         # Remove empty elements from the output list and remove the '\r' character from each element
         audio_tracks_info = [
@@ -190,17 +209,23 @@ class AudioExtraction:
                 command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
             if result.returncode != 0:
                 raise AudioExtractionError(result.stderr.decode('utf-8'))
-        except FileNotFoundError as error:
-            raise AudioExtractionError(error) from error
-        except subprocess.CalledProcessError as error:
-            raise AudioExtractionError(error.stderr.decode('utf-8')) from error
+        except FileNotFoundError as file_not_found_error:
+            raise AudioExtractionError(file_not_found_error) from file_not_found_error
+        except subprocess.CalledProcessError as called_process_error:
+            raise AudioExtractionError(called_process_error.stderr.decode('utf-8')) from called_process_error
 
         logging.info("Audio track: %s, audio_track_lang: %s extracted successfully.",
                      track_number, language_choice)
 
-
 try:
-    ae = AudioExtraction("E:\\S01E01.mkv", "E:\\S01E01_jpn.wav")
-    ae.extract_audio()
-except AudioExtractionError as e:
-    logging.exception('An error occurred while extracting audio: %s', e)
+    audio_extraction = AudioExtraction(
+        input_video_file_path="E:\\S01E01.mkv",
+        output_audio_file_path="E:\\S01E01_audio.wav"
+    )
+    audio_extraction.extract_audio()
+except AudioExtractionError as error:
+    logging.error(error)
+except FileNotFoundError as error:
+    logging.error(error)
+except ValueError as error:
+    logging.error(error)
