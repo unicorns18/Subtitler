@@ -88,29 +88,23 @@ class AudioExtraction:
         str
             Language choice.
         """
-        # Display available languages
-        logging.info("Available languages: ")
-        for language in language_track_mapping:
-            logging.info("%s: %s", language, language_track_mapping[language])
+        logging.info("Available languages:")
+        for index, language in enumerate(language_track_mapping, start=1):
+            logging.info(f"[{index}] {language}: {language_track_mapping[language]}")
 
-        # Prompt user for language choice
-        language_choice = input(
-            "Please choose a language (Example: eng or 1): ")
+        while True:
+            user_input = input("Please choose a language (Example: eng or 1): ")
+            if isinstance(user_input, str) and user_input in language_track_mapping:
+                break
+            elif user_input.isdigit() and 1 <= int(user_input) <= len(language_track_mapping):
+                language_index = int(user_input) - 1
+                user_input = list(language_track_mapping.keys())[language_index]
+                break
+            else:
+                logging.warning("Invalid language choice: %s. Please choose between 1 and %d, or a valid language code.",
+                                user_input, len(language_track_mapping))
 
-        # If the user's choice is a digit, convert it to an integer and verify it's valid
-        if language_choice.isdigit():
-            language_choice = int(language_choice)
-            if language_choice < 1 or language_choice > len(language_track_mapping):
-                raise ValueError(f"Invalid language choice: {language_choice}")
-            # Convert the integer back to the corresponding language choice
-            language_choice = list(language_track_mapping.keys())[
-                language_choice - 1]
-        else:
-            # Verify that the user's choice is valid
-            if language_choice not in language_track_mapping:
-                raise ValueError(f"Invalid language choice: {language_choice}")
-        # Return the language choice
-        return language_choice
+        return user_input
 
     def extract_audio(self) -> None:
         """
@@ -193,7 +187,9 @@ class AudioExtraction:
             raise ValueError(f"Invalid language choice: {language_choice}")
         track_number = language_track_mapping[language_choice]
 
-        print("You have selected track number", track_number)
+        print("You have selected track number: ", track_number)
+
+        exit(0)
 
         # Sanitize command
         command = (
