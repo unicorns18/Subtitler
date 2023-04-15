@@ -30,9 +30,7 @@ from langdetect.lang_detect_exception import LangDetectException
 from enums.subtitletype import SubtitleType
 from exceptions.exceptions import TranslationError
 from file_handling.filereader import FileReader
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(
-    __file__))))  # pylint: disable=import-error, wrong-import-position
-
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # pylint: disable=import-error, wrong-import-position
 
 SUPPORTED_ENCODINGS = ['utf-8', 'UTF-8-SIG', 'ascii', 'iso-8859-1',
                        'utf-16', 'utf-16-le', 'utf-16-be', 'cp1252', 'cp850', 'cp437']
@@ -174,7 +172,6 @@ class SubtitleTranslation:
         except IOError as io_error:
             logger.exception("Could not save file.")
             raise IOError("Could not save file.") from io_error
-
 
 os.system("cls")
 st = SubtitleTranslation("ja", "en", "test_ja.srt")
